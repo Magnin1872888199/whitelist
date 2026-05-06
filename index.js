@@ -4,7 +4,7 @@ const axios = require("axios");
 const app = express();
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const USERNAME = "SEU_USER";
+const USERNAME = "Magnin1872888199";
 const REPO = "whitelist";
 
 const FILE_PATH = "whitelist.json";
