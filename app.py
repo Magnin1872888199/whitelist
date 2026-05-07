@@ -13,6 +13,14 @@ def get():
 def update():
     global whitelist
 
+    data = request.form.get("users")
+
+    if data:
+        whitelist["users"] = data.split(",")
+
+    return {"status": "ok", "users": whitelist["users"]}
+    global whitelist
+
     data = request.get_json(force=True)
 
     if "users" in data:
