@@ -14,6 +14,15 @@ def update():
 
     data = request.json
 
+    # garante que sempre é lista válida
+    if "users" in data and isinstance(data["users"], list):
+        whitelist["users"] = data["users"]
+
+    return {"status": "ok", "users": whitelist["users"]}
+    global whitelist
+
+    data = request.json
+
     # aceita string ou lista
     if isinstance(data, dict) and "users" in data:
         whitelist["users"] = data["users"]
