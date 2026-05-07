@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
+import os
 
 app = Flask(__name__)
 
-# começa com lista vazia (importante)
 whitelist = {"users": []}
 
 @app.route("/get", methods=["GET"])
@@ -13,14 +13,13 @@ def get():
 def update():
     global whitelist
 
-    data = request.get_json()
+    data = request.get_json(force=True)
 
-    if not data or "users" not in data:
-        return jsonify({"status": "error", "msg": "no data"}), 400
-
-    whitelist["users"] = data["users"]
+    if "users" in data:
+        whitelist["users"] = data["users"]
 
     return jsonify({"status": "ok", "users": whitelist["users"]})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
