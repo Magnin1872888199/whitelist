@@ -1,35 +1,38 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
+import os
 
 app = Flask(__name__)
 
-# whitelist inicial
 whitelist = {"users": []}
 
-# 🔥 ver whitelist
+# 📋 ver whitelist
 @app.route("/get", methods=["GET"])
 def get():
     return jsonify(whitelist)
 
-# 🔥 atualizar whitelist
+# ➕ atualizar whitelist (modo texto simples)
 @app.route("/update", methods=["POST"])
 def update():
     global whitelist
 
-    users = request.form.get("users")
+    try:
+        data = ""
+        # lê corpo puro
+        from flask import request
+        data = request.data.decode("utf-8").strip()
 
-    # bloqueia vazio (isso evita seu bug [""])
-    if not users:
-        return jsonify({"status": "error", "msg": "empty users"}), 400
+        if not data:
+            return jsonify({"status": "error", "msg": "empty"}), 400
 
-    # limpa valores vazios
-    clean_list = [u for u in users.split(",") if u.strip() != ""]
+        # transforma em lista
+        whitelist["users"] = [x for x in data.split(",") if x]
 
-    whitelist["users"] = clean_list
+        return jsonify({"status": "ok", "users": whitelist["users"]})
 
-    return jsonify({
-        "status": "ok",
-        "users": whitelist["users"]
-    })
+    except Exception as e:
+        return jsonify({"status": "error", "msg": str(e)}), 500
+
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
