@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+# começa com lista vazia (importante)
 whitelist = {"users": []}
 
 @app.route("/get", methods=["GET"])
@@ -12,22 +13,14 @@ def get():
 def update():
     global whitelist
 
-    data = request.json
+    data = request.get_json()
 
-    # garante que sempre é lista válida
-    if "users" in data and isinstance(data["users"], list):
-        whitelist["users"] = data["users"]
+    if not data or "users" not in data:
+        return jsonify({"status": "error", "msg": "no data"}), 400
 
-    return {"status": "ok", "users": whitelist["users"]}
-    global whitelist
+    whitelist["users"] = data["users"]
 
-    data = request.json
-
-    # aceita string ou lista
-    if isinstance(data, dict) and "users" in data:
-        whitelist["users"] = data["users"]
-
-    return {"status": "ok"}
+    return jsonify({"status": "ok", "users": whitelist["users"]})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
