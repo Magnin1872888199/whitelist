@@ -24,10 +24,10 @@ def get():
 
 @app.route("/update", methods=["POST"])
 def update():
-    data = request.form.get("user")
+    data = request.get_data(as_text=True).strip()
 
     if not data:
-        return {"status": "error", "msg": "no user"}, 400
+        return {"status": "error", "msg": "empty"}, 400
 
     db = read()
 
