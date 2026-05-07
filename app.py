@@ -1,37 +1,42 @@
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
+import json
 import os
 
 app = Flask(__name__)
 
-whitelist = {"users": []}
+FILE = "whitelist.json"
 
-# 📋 ver whitelist
+if not os.path.exists(FILE):
+    with open(FILE, "w") as f:
+        json.dump({"users": []}, f)
+
+def read():
+    with open(FILE, "r") as f:
+        return json.load(f)
+
+def save(data):
+    with open(FILE, "w") as f:
+        json.dump(data, f)
+
 @app.route("/get", methods=["GET"])
 def get():
-    return jsonify(whitelist)
+    return jsonify(read())
 
-# ➕ atualizar whitelist (modo texto simples)
 @app.route("/update", methods=["POST"])
 def update():
-    global whitelist
+    data = request.form.get("user")
 
-    try:
-        data = ""
-        # lê corpo puro
-        from flask import request
-        data = request.data.decode("utf-8").strip()
+    if not data:
+        return {"status": "error", "msg": "no user"}, 400
 
-        if not data:
-            return jsonify({"status": "error", "msg": "empty"}), 400
+    db = read()
 
-        # transforma em lista
-        whitelist["users"] = [x for x in data.split(",") if x]
+    if data not in db["users"]:
+        db["users"].append(data)
 
-        return jsonify({"status": "ok", "users": whitelist["users"]})
+    save(db)
 
-    except Exception as e:
-        return jsonify({"status": "error", "msg": str(e)}), 500
-
+    return {"status": "ok", "users": db["users"]}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
